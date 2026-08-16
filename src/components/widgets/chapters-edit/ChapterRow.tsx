@@ -97,8 +97,17 @@ function ChapterRow({
   onAdjustStartTime
 }: ChapterRowProps) {
   const t = useTypeSafeTranslations()
-  const cannotDecrement = chapter.id === 0 && chapter.start - TIME_INCREMENT < 0
-  const cannotIncrement = chapter.start + TIME_INCREMENT >= mediaDuration
+  const isFirstChapter = chapter.id === 0
+  const startValue = isFirstChapter ? 0 : chapter.start
+  const cannotDecrement = isFirstChapter || chapter.start - TIME_INCREMENT < 0
+  const cannotIncrement = isFirstChapter || chapter.start + TIME_INCREMENT >= mediaDuration
+  const startControlTooltip = isFirstChapter ? t('MessageChapterErrorFirstNotZero') : undefined
+
+  useEffect(() => {
+    if (isFirstChapter && chapter.start !== 0) {
+      onStartChange(0)
+    }
+  }, [chapter.start, isFirstChapter, onStartChange])
 
   return (
     <div className="contents">
@@ -106,10 +115,10 @@ function ChapterRow({
 
       <div className="min-w-0 px-1 py-1">
         <div className="flex items-center gap-1">
-          <Tooltip lazy text={t('TooltipSubtractOneSecond')} position="bottom">
+          <Tooltip lazy text={isFirstChapter ? t('MessageChapterErrorFirstNotZero') : t('TooltipSubtractOneSecond')} position="bottom">
             <button
               type="button"
-              aria-label={t('TooltipSubtractOneSecond')}
+              aria-label={isFirstChapter ? t('MessageChapterErrorFirstNotZero') : t('TooltipSubtractOneSecond')}
               className={mergeClasses(
                 'text-foreground-muted hover:text-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110',
                 cannotDecrement && 'cursor-not-allowed opacity-50'
@@ -121,18 +130,32 @@ function ChapterRow({
             </button>
           </Tooltip>
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1" title={startControlTooltip}>
             {showSecondInputs ? (
-              <TextInput type="number" value={String(chapter.start)} size="small" className="text-xs" onChange={(value) => onStartChange(Number(value))} />
+              <TextInput
+                type="number"
+                value={String(startValue)}
+                readOnly={isFirstChapter}
+                size="small"
+                className="text-xs"
+                onChange={(value) => onStartChange(Number(value))}
+              />
             ) : (
-              <DurationPicker value={chapter.start} showThreeDigitHour={mediaDuration >= 360000} size="small" className="w-full" onChange={onStartChange} />
+              <DurationPicker
+                value={startValue}
+                readOnly={isFirstChapter}
+                showThreeDigitHour={mediaDuration >= 360000}
+                size="small"
+                className="w-full"
+                onChange={onStartChange}
+              />
             )}
           </div>
 
-          <Tooltip lazy text={t('TooltipAddOneSecond')} position="bottom">
+          <Tooltip lazy text={isFirstChapter ? t('MessageChapterErrorFirstNotZero') : t('TooltipAddOneSecond')} position="bottom">
             <button
               type="button"
-              aria-label={t('TooltipAddOneSecond')}
+              aria-label={isFirstChapter ? t('MessageChapterErrorFirstNotZero') : t('TooltipAddOneSecond')}
               className={mergeClasses(
                 'text-foreground-muted hover:text-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110',
                 cannotIncrement && 'cursor-not-allowed opacity-50'
@@ -214,6 +237,7 @@ function ChapterRow({
                 </span>
               </Tooltip>
             ) : (
+              !isFirstChapter &&
               isSelected &&
               (isPlayingChapter || isLoadingChapter) && (
                 <Tooltip lazy text={t('TooltipAdjustChapterStart')} position="bottom">

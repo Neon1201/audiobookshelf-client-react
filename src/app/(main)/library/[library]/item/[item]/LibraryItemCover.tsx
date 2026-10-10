@@ -6,6 +6,7 @@ import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
@@ -36,6 +37,7 @@ export default function LibraryItemCover({
   onPlay
 }: LibraryItemCoverProps) {
   const coverAspectRatio = useBookCoverAspectRatio()
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const t = useTypeSafeTranslations()
   const [isHovering, setIsHovering] = useState(false)
 
@@ -45,9 +47,7 @@ export default function LibraryItemCover({
   const mediaMetadata = libraryItem.media.metadata
 
   const title = mediaMetadata.title || ''
-  const author = isPodcast ? mediaMetadata.author : (mediaMetadata as BookMetadata).authorName || ''
-  const titleCleaned = !title ? '' : title.length > 60 ? `${title.slice(0, 57)}...` : title
-  const authorCleaned = !author ? '' : author.length > 30 ? `${author.slice(0, 27)}...` : author
+  const author = (isPodcast ? mediaMetadata.author : (mediaMetadata as BookMetadata).authorName) || ''
 
   const coverPath = libraryItem.media?.coverPath
 
@@ -90,7 +90,7 @@ export default function LibraryItemCover({
     [coverPath]
   )
 
-  const showOverlay = isHovering
+  const showOverlay = primaryInputCanHover && isHovering
 
   return (
     <>
@@ -110,8 +110,7 @@ export default function LibraryItemCover({
             placeholderUrl={getPlaceholderCoverUrl()}
             hasCover={!!coverPath}
             title={title}
-            titleCleaned={titleCleaned}
-            authorCleaned={authorCleaned}
+            author={author}
             userProgressPercent={userProgressPercent}
             itemIsFinished={itemIsFinished}
             showProgressBar={showProgressBar}
@@ -121,7 +120,8 @@ export default function LibraryItemCover({
           <div
             className={mergeClasses(
               'absolute inset-0 z-10 bg-black/40 transition-opacity duration-200',
-              showOverlay ? 'opacity-100' : 'pointer-events-none opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100'
+              showOverlay ? 'opacity-100' : 'pointer-events-none opacity-0',
+              !showOverlay && primaryInputCanHover && 'group-focus-within:pointer-events-auto group-focus-within:opacity-100'
             )}
           >
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

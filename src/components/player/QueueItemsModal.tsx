@@ -16,7 +16,6 @@ import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
 import { skipNextReleasePop } from '@/lib/historyTrap'
-import { listRowFocusWithinClass, listRowHighlightClass, listRowHoverClass } from '@/lib/listRowClasses'
 import { mergeClasses } from '@/lib/merge-classes'
 import { getPlayerQueueEpisodeNavigationContext } from '@/lib/playerQueue'
 import Link from 'next/link'
@@ -226,7 +225,7 @@ export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueI
           <p className="text-foreground-subdued text-sm whitespace-nowrap transition-opacity group-focus-within:opacity-0 group-hover:opacity-0">
             {durationLabel}
           </p>
-          <div className="inset-e-0 absolute inset-y-0 flex items-center justify-end gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+          <div className="absolute inset-y-0 inset-e-0 flex items-center justify-end gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             {actionButtons}
           </div>
         </div>
@@ -236,14 +235,15 @@ export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueI
   )
 
   const getRowClassName = useCallback(
-    (item: PlayerQueueItem) => {
+    (item: PlayerQueueItem, index: number) => {
       const isCurrentlyPlaying = isStreaming(item.libraryItemId, item.episodeId)
 
       if (isCurrentlyPlaying) {
-        return mergeClasses('border-0', listRowHighlightClass, listRowHoverClass, listRowFocusWithinClass)
+        return 'border-0 bg-warning/10'
       }
 
-      return mergeClasses('border-0 even:bg-table-row-bg-even', listRowHoverClass, listRowFocusWithinClass)
+      const stripeBg = index % 2 === 0 ? 'bg-white/5' : 'bg-bg'
+      return mergeClasses('border-0 hover:bg-white/10 focus-within:bg-white/10', stripeBg)
     },
     [isStreaming]
   )
@@ -267,7 +267,7 @@ export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueI
             return (
               <li
                 key={`${item.libraryItemId}:${item.episodeId ?? ''}`}
-                className={mergeClasses('group col-span-full grid grid-cols-subgrid items-center px-4 py-2', getRowClassName(item))}
+                className={mergeClasses('group col-span-full grid grid-cols-subgrid items-center px-4 py-2', getRowClassName(item, index))}
               >
                 <div className="pe-2">
                   <QueueItemCover libraryId={item.libraryId} coverSrc={coverSrc} placeholderUrl={placeholderUrl} hasCover={hasCover} title={item.title || ''} />

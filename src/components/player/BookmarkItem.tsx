@@ -7,7 +7,6 @@ import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
-import { listRowFocusClass, listRowHighlightClass, listRowHoverClass } from '@/lib/listRowClasses'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { AudioBookmark } from '@/types/api'
 import { useCallback, useState } from 'react'
@@ -86,7 +85,7 @@ export default function BookmarkItem({ bookmark, highlight, playbackRate, onSele
   return (
     <>
       {isEditing ? (
-        <form onSubmit={submitUpdate} className={mergeClasses('flex w-full min-w-0 items-center gap-2 px-4 py-3', highlight && listRowHighlightClass)}>
+        <form onSubmit={submitUpdate} className={mergeClasses('flex w-full min-w-0 items-center gap-2 px-4 py-3', highlight && 'bg-button-selected-bg')}>
           <div className="w-16 max-w-16 shrink-0 text-center">
             <p className="text-foreground-muted font-mono text-sm">{displayTimestamp}</p>
           </div>
@@ -114,7 +113,11 @@ export default function BookmarkItem({ bookmark, highlight, playbackRate, onSele
           tabIndex={0}
           onClick={handleSelect}
           onKeyDown={handleRowKeyDown}
-          className={mergeClasses('flex cursor-pointer items-center gap-1 px-4 py-3', listRowHoverClass, listRowFocusClass, highlight && listRowHighlightClass)}
+          className={mergeClasses(
+            'flex cursor-pointer items-center gap-1 px-4 py-3',
+            'hover:bg-bg-hover focus-visible:bg-bg-hover',
+            highlight && 'bg-button-selected-bg'
+          )}
         >
           <div className="w-16 max-w-16 shrink-0 text-center">
             <p className="text-foreground-muted font-mono text-sm">{displayTimestamp}</p>

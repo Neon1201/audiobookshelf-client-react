@@ -5,7 +5,6 @@ import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
-import { listRowFocusClass, listRowHighlightClass, listRowHoverClass } from '@/lib/listRowClasses'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Chapter } from '@/types/api'
 import { memo, useCallback, useEffect, useRef } from 'react'
@@ -50,10 +49,8 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       onKeyDown={handleKeyDown}
       className={mergeClasses(
         'relative flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left',
-        'focus:outline-none',
-        listRowHoverClass,
-        listRowFocusClass,
-        isCurrentChapter && listRowHighlightClass
+        'hover:bg-bg-hover focus-visible:bg-bg-hover focus:outline-none',
+        isCurrentChapter && 'bg-button-selected-bg'
       )}
       data-current={isCurrentChapter}
     >
